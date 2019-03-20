@@ -4,41 +4,38 @@
 ##
 
 ## Make Log
-touch /root/install.Log
-echo "" > /root/install.log;echo "" >> /root/install.log;
-echo -n "Started at: " >> /root/install.log; date >> /root/install.log
-echo "" >> /root/install.log;echo "" >> /root/install.log;
-export ok=true
+export log=/root/install.log
+echo -en " \n \n Started at: " >> $log; date >> $log; echo -e "\n" >> $log
 
-echo ""
-echo "================================================================="
-echo "               Installation Script - For Vaio"
-echo "================================================================="
-echo ""
-echo "Hey This script was written for a specific computer but you're welcome to use it"
+
+echo -e "\n ================================================================="
+echo    "               Installation Script - For Vaio"
+echo -e "================================================================= \n"
+
+echo "This script was written for a specific computer but you're welcome to use it"
 
 ## Setting up Wifi
-echo -n "Set up wifi success" >> /root/install.log    && \
-date >> /root/install.log                             && \
-wifi-menu                                             || \
-export ok=false
-[[ $ok != true ]] && echo "Failed to setup wifi" >> /root/install.log && return
+
+echo -n "Set up wifi : "; wifi-menu                   && \
+echo -n "successfully set up wifi - " >> $log         && \
+date >> $log                                          || \
+                                             
+
 
 ## Update system clock
 echo "Update System Clock" >> /root/install.log       && \
 timedatectl set-ntp true                              || \
-export ok=false
+
 
 ## Partition Disks
-echo "24:Partition Disks"
+
 parted -s /dev/sda mklabel gpt                        && \
 parted -s /dev/sda mkpart P1 1MiB 2MiB                && \
 parted -s /dev/sda mkpart P1 ext4 2MiB 202MiB         && \
 parted -s /dev/sda mkpart P1 202MiB 1GiB              && \
 parted -s /dev/sda mkpart P1 ext4 1GiB 100%           && \
 parted -s /dev/sda set 1 bios_grub on                 || \
-export ok=false
-[[ $ok != true ]] && echo "Failed to Partition Disks properly" && return
+
 
 ## Format Partitions
 echo "34:Formatting Partitions"
